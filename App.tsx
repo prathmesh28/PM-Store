@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, FC } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -12,12 +12,19 @@ import { FlashList } from "@shopify/flash-list";
 import SearchBar from './SearchBar';
 import { AddSVG, DownloadSVG, MinusSVG, SyncSVG } from './AllSVG';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-function App() {
 
-  const [dataList, setListData] = useState([])
-  const [searchData, setSearchData] = useState([])
+
+type ItemData = {
+  title: string,
+  id: number,
+  quantity: number
+}
+const App: React.FC = () => {
+
+  const [dataList, setListData] = useState<ItemData[]>([])
+  const [searchData, setSearchData] = useState<ItemData[]>([])
   // const [searchFocus, setSearchFocus] = useState([])
-  const [searchTxt, setSearchTxt] = useState("")
+  const [searchTxt, setSearchTxt] = useState<string>("")
 
 
   useEffect(() => {
@@ -34,7 +41,7 @@ function App() {
         ToastAndroid.CENTER,
       );
       setListData(storageData)
-    } catch (e) {
+    } catch (e: any) {
       // error reading value
       ToastAndroid.showWithGravity(
         e.message,
@@ -51,10 +58,10 @@ function App() {
     );
     fetch('https://dummyjson.com/products')
       .then(res => res.json())
-      .then((json) => {
+      .then((json:any) => {
         let mainData = dataList || []
-        json?.products?.map(itm => {
-          const found = mainData?.some(el => el.id === itm.id);
+        json?.products?.map((itm: ItemData) => {
+          const found = mainData?.some((el: ItemData) => el.id === itm.id);
           if (!found)
             mainData = [...mainData, {
               title: itm?.title,
@@ -62,7 +69,7 @@ function App() {
               quantity: 0
             }]
         })
-        let sortedData = mainData?.sort((a, b) => a.id - b.id)
+        let sortedData = mainData?.sort((a: ItemData, b: ItemData) => a.id - b.id)
         ToastAndroid.showWithGravity(
           'List Updated!',
           ToastAndroid.SHORT,
@@ -73,7 +80,7 @@ function App() {
       })
   }
 
-  const storeData = async (value) => {
+  const storeData = async (value: ItemData[]) => {
     try {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem('dataList', jsonValue);
@@ -82,7 +89,7 @@ function App() {
         ToastAndroid.SHORT,
         ToastAndroid.CENTER,
       );
-    } catch (e) {
+    } catch (e: any) {
       // saving error
       ToastAndroid.showWithGravity(
         e.message,
@@ -91,10 +98,10 @@ function App() {
       );
     }
   };
-  const AddItem = (item, idx) => {
+  const AddItem = (item: ItemData, idx: number) => {
     let dataToAdd = item.quantity + 1
     let AllData = [...dataList]
-    let index = AllData?.findIndex((element) => element.id === item.id)
+    let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
     AllData[index].quantity = dataToAdd
     if (searchTxt) {
       let AllData_S = [...searchData]
@@ -104,11 +111,11 @@ function App() {
     setListData(AllData)
     storeData(AllData)
   }
-  const RemoveItem = (item, idx) => {
+  const RemoveItem = (item: ItemData, idx: number) => {
     if (item.quantity) {
       let dataToRemove = item.quantity - 1
       let AllData = [...dataList]
-      let index = AllData?.findIndex((element) => element.id === item.id)
+      let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
       AllData[index].quantity = dataToRemove
       if (searchTxt) {
         let AllData_S = [...searchData]
@@ -120,9 +127,9 @@ function App() {
     }
   }
 
-  const onSearchData = (data) => {
+  const onSearchData = (data: string) => {
     setSearchTxt(data)
-    let tempdata = dataList?.filter(obj => (obj?.title?.toLowerCase()?.includes(data?.toLowerCase())) && obj);
+    let tempdata = dataList?.filter((obj: ItemData) => (obj?.title?.toLowerCase()?.includes(data?.toLowerCase())) && obj);
     setSearchData(tempdata)
   }
   const UploadList = () => {
@@ -137,7 +144,7 @@ function App() {
 
   // const onBlur = () => setSearchFocus(false)
 
-  const renderData = ({ item, index }) => <View style={styles.rowSty} >
+  const renderData = ({ item, index }: { item: ItemData, index: number }) => <View style={styles.rowSty} >
     <View style={styles.numView}>
       <Text style={styles.num}>{index + 1}. </Text>
     </View>
