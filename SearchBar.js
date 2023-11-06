@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import {
   TextInput,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
   Text,
   Keyboard,
 } from 'react-native';
-import { BachSVG, SearchSVG } from './AllSVG';
+import {BachSVG, SearchSVG} from './AllSVG';
 
 const styles = StyleSheet.create({
   searchBar: {
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   searchBarInput: {
     flex: 1,
     fontWeight: 'normal',
-    color: '#212121',
+   
     backgroundColor: 'transparent',
   },
 });
@@ -51,12 +51,13 @@ export default class SearchBar extends React.Component {
     inputProps: PropTypes.object,
     onBackPress: PropTypes.func,
     alwaysShowBackButton: PropTypes.bool,
+    isDark: PropTypes.bool,
   };
 
   static defaultProps = {
-    onSearchChange: () => { },
-    onEndEditing: () => { },
-    onSubmitEditing: () => { },
+    onSearchChange: () => {},
+    onEndEditing: () => {},
+    onSubmitEditing: () => {},
     inputStyle: {},
     iconCloseName: 'md-close',
     iconSearchName: 'md-search',
@@ -69,6 +70,7 @@ export default class SearchBar extends React.Component {
     textStyle: {},
     alwaysShowBackButton: false,
     searchValue: '',
+    isDark: false,
   };
 
   constructor(props) {
@@ -85,7 +87,7 @@ export default class SearchBar extends React.Component {
   }
 
   _onSearchChange(searchValue) {
-    this.setState({ searchValue });
+    this.setState({searchValue});
     this.props.onSearchChange && this.props.onSearchChange(searchValue);
   }
 
@@ -95,14 +97,14 @@ export default class SearchBar extends React.Component {
   }
 
   _onFocus() {
-    this.setState({ isOnFocus: true });
+    this.setState({isOnFocus: true});
     if (this.props.onFocus) {
       this.props.onFocus();
     }
   }
 
   _onBlur() {
-    this.setState({ isOnFocus: false });
+    this.setState({isOnFocus: false});
     if (this.props.onBlur) {
       this.props.onBlur();
     }
@@ -110,14 +112,14 @@ export default class SearchBar extends React.Component {
   }
 
   _backPressed() {
-    Keyboard.dismiss()
+    Keyboard.dismiss();
     if (this.props.onBackPress) {
-      this.props.onBackPress()
+      this.props.onBackPress();
     }
   }
 
   setText(text, focus) {
-    this._textInput.setNativeProps({ text: text });
+    this._textInput.setNativeProps({text: text});
     if (focus) {
       this._onFocus();
     }
@@ -140,49 +142,53 @@ export default class SearchBar extends React.Component {
       iconCloseName,
       placeholderColor,
       textStyle,
+      isDark
     } = this.props;
 
-    let { iconSize, iconPadding } = this.props
+    let {iconSize, iconPadding} = this.props;
 
-    iconSize = typeof iconSize !== 'undefined' ? iconSize : height * 0.5
-    iconPadding = typeof iconPadding !== 'undefined' ? iconPadding : height * 0.25
+    iconSize = typeof iconSize !== 'undefined' ? iconSize : height * 0.5;
+    iconPadding =
+      typeof iconPadding !== 'undefined' ? iconPadding : height * 0.25;
 
     return (
       <View
         // onStartShouldSetResponder={Keyboard.dismiss}
-        style={{ padding: padding }}
-        
-      >
+        style={{padding: padding}}>
         <View
-          style={
-            [
-              styles.searchBar,
-              {
-                height: height,
-                paddingLeft: iconPadding
-              },
-              inputStyle
-            ]
-          }
-        >
-          {this.state.isOnFocus || this.props.alwaysShowBackButton
-            ? <TouchableOpacity onPress={this._backPressed.bind(this)}>
-              {iconBackComponent ?
+          style={[
+            styles.searchBar,
+            {
+              height: height,
+              paddingLeft: iconPadding,
+            },
+            inputStyle,
+          ]}>
+          {this.state.isOnFocus || this.props.alwaysShowBackButton ? (
+            <TouchableOpacity onPress={this._backPressed.bind(this)}>
+              {iconBackComponent ? (
                 iconBackComponent
-                :
-                <BachSVG width={25} height={25} />
-              }
+              ) : (
+                <BachSVG
+                  width={25}
+                  height={25}
+                  fill={isDark ? '#dcdcdc' : '#212121'}
+                />
+              )}
             </TouchableOpacity>
-            :
-            (iconSearchComponent ?
-              iconSearchComponent
-              :
-              <SearchSVG width={25} height={25} />)
-          }
+          ) : iconSearchComponent ? (
+            iconSearchComponent
+          ) : (
+            <SearchSVG
+              width={25}
+              height={25}
+              fill={isDark ? '#dcdcdc' : '#212121'}
+            />
+          )}
           <TextInput
             value={this.state.searchValue}
             autoCorrect={autoCorrect === true}
-            ref={c => this._textInput = c}
+            ref={c => (this._textInput = c)}
             returnKeyType={returnKeyType}
             onFocus={this._onFocus}
             onBlur={this._onBlur}
@@ -192,28 +198,35 @@ export default class SearchBar extends React.Component {
             placeholder={placeholder}
             placeholderTextColor={placeholderColor}
             underlineColorAndroid="transparent"
-            style={
-              [styles.searchBarInput,
+            style={[
+              styles.searchBarInput,
               {
+                color: isDark ? '#dcdcdc' : '#212121',
                 paddingLeft: iconPadding,
                 fontSize: height * 0.4,
               },
-                textStyle
-              ]
-            }
-            
+              textStyle,
+            ]}
             {...this.props.inputProps}
           />
-          {this.state.isOnFocus ?
+          {this.state.isOnFocus ? (
             <TouchableOpacity onPress={this._onClear}>
-              {iconCloseComponent ?
+              {iconCloseComponent ? (
                 iconCloseComponent
-                :
-                <Text style={{ color: "#000", fontSize: 18, paddingHorizontal: 8, marginRight: 6, fontWeight: 'bold' }}>✕</Text>
-              }
+              ) : (
+                <Text
+                  style={{
+                    color: isDark ? '#fff' : '#000',
+                    fontSize: 18,
+                    paddingHorizontal: 8,
+                    marginRight: 6,
+                    fontWeight: 'bold',
+                  }}>
+                  ✕
+                </Text>
+              )}
             </TouchableOpacity>
-            : null
-          }
+          ) : null}
         </View>
       </View>
     );
