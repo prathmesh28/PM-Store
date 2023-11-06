@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback, FC } from 'react';
+import React, { useEffect, useState, useCallback, FC, useMemo } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -12,23 +12,95 @@ import { FlashList } from "@shopify/flash-list";
 import SearchBar from './SearchBar';
 import { AddSVG, DownloadSVG, MinusSVG, SyncSVG } from './AllSVG';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+const Data = {
+  "categories": [
+    {
+      "id": 1,
+      "name": "Grocery"
+    },
+    {
+      "id": 2,
+      "name": "Rice and Atta"
+    },
+    {
+      "id": 3,
+      "name": "Oils"
+    },
+    {
+      "id": 4,
+      "name": "Food and Stuff"
+    },
+    {
+      "id": 5,
+      "name": "Others"
+    }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "name": "1kg Sugar",
+      "category": "0"
+    },
+    {
+      "id": "2",
+      "name": "0.5kg sugdsadasdar",
+      "category": "0"
+    },
+    {
+      "id": "3",
+      "name": "1kg ashirwad",
+      "category": "1"
+    },
+    {
+      "id": "4",
+      "name": "0.5kg besan",
+      "category": "1"
+    },
+    {
+      "id": "5",
+      "name": "1kg rice flour",
+      "category": "2"
+    },
+    {
+      "id": "6",
+      "name": "1kg asdasda",
+      "category": "2"
+    },
+    {
+      "id": "7",
+      "name": "0.5kg qweqweqw",
+      "category": "3"
+    },
+    {
+      "id": "8",
+      "name": "1kg rice XCZCZ",
+      "category": "3"
+    }
+  ]
+}
+
 
 
 type ItemData = {
-  title: string,
+  name: string,
   id: number,
-  quantity: number
+  category: number,
+  quantity: number,
+}
+
+type Category = {
+  id: number,
+  name: string
 }
 const App: React.FC = () => {
 
   const [dataList, setListData] = useState<ItemData[]>([])
-  const [searchData, setSearchData] = useState<ItemData[]>([])
-  // const [searchFocus, setSearchFocus] = useState([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [searchTxt, setSearchTxt] = useState<string>("")
 
 
   useEffect(() => {
-    getFromStorage()
+    // getFromStorage()
   }, [])
 
   const getFromStorage = async () => {
@@ -56,27 +128,42 @@ const App: React.FC = () => {
       ToastAndroid.SHORT,
       ToastAndroid.CENTER,
     );
-    fetch('https://dummyjson.com/products')
+    fetch('https://dummyjson.com/products?limit=100')
       .then(res => res.json())
-      .then((json:any) => {
-        let mainData = dataList || []
-        json?.products?.map((itm: ItemData) => {
-          const found = mainData?.some((el: ItemData) => el.id === itm.id);
-          if (!found)
-            mainData = [...mainData, {
-              title: itm?.title,
-              id: itm?.id,
-              quantity: 0
-            }]
+      .then((json: any) => {
+        // console.log(json?.products.length)
+        // let mainData = dataList || []
+        // console.log(json)
+        // json?.products?.map((itm: ItemData) => {
+        // const found = mainData?.some((el: ItemData) => el.id === itm.id);
+        // if (!found)
+        // mainData = [...mainData, {
+        //   title: itm?.title,
+        //   id: itm?.id,
+        //   quantity: 0
+        // }]
+        // })
+        // 
+        setCategories(Data.categories)
+        let tempData: ItemData[] = []
+        Data.items.map(itm => {
+          tempData = [...tempData, {
+            id: parseInt(itm.id),
+            name: itm.name.toString(),
+            category: parseInt(itm.category),
+            quantity: 0
+          }]
         })
-        let sortedData = mainData?.sort((a: ItemData, b: ItemData) => a.id - b.id)
+        setListData(tempData)
+        // 
+        // let sortedData = mainData?.sort((a: ItemData, b: ItemData) => a.id - b.id)
         ToastAndroid.showWithGravity(
           'List Updated!',
           ToastAndroid.SHORT,
           ToastAndroid.CENTER,
         );
-        setListData(sortedData)
-        storeData(sortedData)
+        // setListData(sortedData)
+        // storeData(sortedData)
       })
   }
 
@@ -99,38 +186,27 @@ const App: React.FC = () => {
     }
   };
   const AddItem = (item: ItemData, idx: number) => {
-    let dataToAdd = item.quantity + 1
-    let AllData = [...dataList]
-    let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
-    AllData[index].quantity = dataToAdd
-    if (searchTxt) {
-      let AllData_S = [...searchData]
-      AllData_S[idx].quantity = dataToAdd
-      setSearchData(AllData_S)
-    }
-    setListData(AllData)
-    storeData(AllData)
+    // let dataToAdd = item.quantity + 1
+    // let AllData = [...dataList]
+    // let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
+    // AllData[index].quantity = dataToAdd
+    // setListData(AllData)
+    // // storeData(AllData)
   }
   const RemoveItem = (item: ItemData, idx: number) => {
-    if (item.quantity) {
-      let dataToRemove = item.quantity - 1
-      let AllData = [...dataList]
-      let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
-      AllData[index].quantity = dataToRemove
-      if (searchTxt) {
-        let AllData_S = [...searchData]
-        AllData_S[idx].quantity = dataToRemove
-        setSearchData(AllData_S)
-      }
-      setListData(AllData)
-      storeData(AllData)
-    }
+    // if (item.quantity) {
+    //   let dataToRemove = item.quantity - 1
+    //   let AllData = [...dataList]
+    //   let index = AllData?.findIndex((element: ItemData) => element.id === item.id)
+    //   AllData[index].quantity = dataToRemove
+
+    //   setListData(AllData)
+    //   // storeData(AllData)
+    // }
   }
 
   const onSearchData = (data: string) => {
     setSearchTxt(data)
-    let tempdata = dataList?.filter((obj: ItemData) => (obj?.title?.toLowerCase()?.includes(data?.toLowerCase())) && obj);
-    setSearchData(tempdata)
   }
   const UploadList = () => {
     ToastAndroid.showWithGravity(
@@ -140,27 +216,32 @@ const App: React.FC = () => {
     );
   }
 
-  // const onFocus = () => setSearchFocus(true)
+  const searchList = useMemo(() => {
+    let tempdata = dataList?.filter((obj: ItemData) => (obj?.name?.toLowerCase()?.includes(searchTxt?.toLowerCase())) && obj);
+    return tempdata
+  }, [searchTxt, dataList])
 
-  // const onBlur = () => setSearchFocus(false)
 
-  const renderData = ({ item, index }: { item: ItemData, index: number }) => <View style={styles.rowSty} >
-    <View style={styles.numView}>
-      <Text style={styles.num}>{index + 1}. </Text>
+  const renderData = ({ item, index }: { item: ItemData, index: number }) => {
+    // console.log('item data')
+    return <View style={styles.rowSty} >
+      <View style={styles.numView}>
+        <Text style={styles.num}>{index + 1}. </Text>
+      </View>
+      <View style={styles.txtView}>
+        <Text style={styles.titTxt}>{item.name}</Text>
+      </View>
+      <Pressable onPress={() => RemoveItem(item, index)}>
+        <MinusSVG width={25} height={25} />
+      </Pressable>
+      <View>
+        <Text style={styles.Quantity}>{item.quantity}</Text>
+      </View>
+      <Pressable onPress={() => AddItem(item, index)}>
+        <AddSVG width={25} height={25} />
+      </Pressable>
     </View>
-    <View style={styles.txtView}>
-      <Text style={styles.titTxt}>{item.title}</Text>
-    </View>
-    <Pressable onPress={() => RemoveItem(item, index)}>
-      <MinusSVG width={25} height={25} />
-    </Pressable>
-    <View>
-      <Text style={styles.Quantity}>{item.quantity}</Text>
-    </View>
-    <Pressable onPress={() => AddItem(item, index)}>
-      <AddSVG width={25} height={25} />
-    </Pressable>
-  </View>
+  }
 
   return (
     <View style={styles.container}>
@@ -169,7 +250,7 @@ const App: React.FC = () => {
         backgroundColor={"#fff"}
       />
       <View style={styles.header}>
-        <Text style={styles.title}>
+        <Text style={styles.name}>
           {/* Pratikesh Store */}
         </Text>
         <Pressable
@@ -188,16 +269,31 @@ const App: React.FC = () => {
       <SearchBar
         onSearchChange={onSearchData}
         height={50}
-        // onFocus={onFocus}
-        // onBlur={onBlur}
         placeholder={'Search...'}
         autoCorrect={false}
         padding={5}
         returnKeyType={'search'}
         inputStyle={styles.searchSty}
       />
+      <View style={{
+        flexDirection: 'row', justifyContent: 'space-evenly',
+        flexWrap: 'wrap'
+      }} >
+        {categories && categories.map((itm, idx) => <Pressable key={idx}
+          style={{
+            width: "30%",
+            marginVertical: 5, elevation: 3,
+            borderColor: "#eeeeee",
+            borderWidth: 1, borderRadius: 10,
+            backgroundColor: "#fff",
+            paddingVertical: 10,
+            paddingHorizontal: 5,
+            alignItems: 'center'
+          }}
+        ><Text style={{ color: "#000" }}>{itm.name}</Text></Pressable>)}
+      </View>
       {dataList && <FlashList
-        data={searchTxt ? searchData : dataList}
+        data={searchTxt ? searchList : dataList}
         contentContainerStyle={styles.flashList}
         renderItem={renderData}
         estimatedItemSize={50}
@@ -221,7 +317,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     flexDirection: 'row',
   },
-  title: {
+  name: {
     color: "#000", fontSize: 21, flex: 1,
     paddingVertical: 14, paddingLeft: 10,
     fontWeight: 'bold'
