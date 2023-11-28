@@ -9,7 +9,7 @@ import {
   Text,
   Keyboard,
 } from 'react-native';
-import {BachSVG, SearchSVG} from './AllSVG';
+import { BachSVG, SearchSVG } from './AllSVG';
 
 const styles = StyleSheet.create({
   searchBar: {
@@ -23,12 +23,13 @@ const styles = StyleSheet.create({
   searchBarInput: {
     flex: 1,
     fontWeight: 'normal',
-   
+
     backgroundColor: 'transparent',
   },
 });
 
-export default class SearchBar extends React.Component {
+export default class SearchBar extends React.PureComponent {
+
   static propTypes = {
     height: PropTypes.number.isRequired,
     autoCorrect: PropTypes.bool,
@@ -55,9 +56,9 @@ export default class SearchBar extends React.Component {
   };
 
   static defaultProps = {
-    onSearchChange: () => {},
-    onEndEditing: () => {},
-    onSubmitEditing: () => {},
+    onSearchChange: () => { },
+    onEndEditing: () => { },
+    onSubmitEditing: () => { },
     inputStyle: {},
     iconCloseName: 'md-close',
     iconSearchName: 'md-search',
@@ -87,7 +88,7 @@ export default class SearchBar extends React.Component {
   }
 
   _onSearchChange(searchValue) {
-    this.setState({searchValue});
+    this.setState({ searchValue });
     this.props.onSearchChange && this.props.onSearchChange(searchValue);
   }
 
@@ -97,14 +98,14 @@ export default class SearchBar extends React.Component {
   }
 
   _onFocus() {
-    this.setState({isOnFocus: true});
+    this.setState({ isOnFocus: true });
     if (this.props.onFocus) {
       this.props.onFocus();
     }
   }
 
   _onBlur() {
-    this.setState({isOnFocus: false});
+    this.setState({ isOnFocus: false });
     if (this.props.onBlur) {
       this.props.onBlur();
     }
@@ -119,7 +120,7 @@ export default class SearchBar extends React.Component {
   }
 
   setText(text, focus) {
-    this._textInput.setNativeProps({text: text});
+    this._textInput.setNativeProps({ text: text });
     if (focus) {
       this._onFocus();
     }
@@ -145,16 +146,16 @@ export default class SearchBar extends React.Component {
       isDark
     } = this.props;
 
-    let {iconSize, iconPadding} = this.props;
+    let { iconSize, iconPadding } = this.props;
 
     iconSize = typeof iconSize !== 'undefined' ? iconSize : height * 0.5;
     iconPadding =
       typeof iconPadding !== 'undefined' ? iconPadding : height * 0.25;
-
+    // console.log('SearchBar')
     return (
       <View
         // onStartShouldSetResponder={Keyboard.dismiss}
-        style={{padding: padding}}>
+        style={{ padding: padding }}>
         <View
           style={[
             styles.searchBar,
