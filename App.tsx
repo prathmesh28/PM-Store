@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useCallback, FC, useMemo, memo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  FC,
+  useMemo,
+  memo,
+} from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -13,7 +20,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
+import {FlashList} from '@shopify/flash-list';
 import SearchBar from './SearchBar';
 import {
   AddSVG,
@@ -26,15 +33,25 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import switchTheme from 'react-native-theme-switch-animation';
 import Animated, {
-  FadeIn, SlideOutLeft, SlideInRight,
+  FadeIn,
+  SlideOutLeft,
+  SlideInRight,
   SlideInLeft,
   SlideOutRight,
-  FadeOutRight, FadeInRight, FadeInLeft, FadeOutLeft, Easing, StretchInY, FlipInEasyX, FadeInDown, FadeOutDown
+  FadeOutRight,
+  FadeInRight,
+  FadeInLeft,
+  FadeOutLeft,
+  Easing,
+  StretchInY,
+  FlipInEasyX,
+  FadeInDown,
+  FadeOutDown,
 } from 'react-native-reanimated';
-import DatePicker from 'react-native-date-picker'
+import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 
-const IS_API = true
+const IS_API = false;
 
 const Data = {
   categories: [
@@ -134,7 +151,7 @@ const Data = {
   ],
 };
 
-const { width, height } = Dimensions.get('screen')
+const {width, height} = Dimensions.get('screen');
 type ItemData = {
   name: string;
   id: number;
@@ -182,9 +199,9 @@ const App: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryID, setCategoryID] = useState<number>(0);
   const [searchTxt, setSearchTxt] = useState<string>('');
-  const [showUpload, setShowUpload] = useState<boolean>(false)
-  const [date, setDate] = useState<Date>(new Date())
-  const [uploadState, setUploadState] = useState<0 | 1 | 2 | 3>(0)
+  const [showUpload, setShowUpload] = useState<boolean>(false);
+  const [date, setDate] = useState<Date>(new Date());
+  const [uploadState, setUploadState] = useState<0 | 1 | 2 | 3>(0);
 
   useEffect(() => {
     getFromStorage();
@@ -205,16 +222,14 @@ const App: React.FC = () => {
         ToastAndroid.SHORT,
         ToastAndroid.CENTER,
       );
-      if (storageData)
-        setListData(storageData);
+      if (storageData) setListData(storageData);
 
       const cattValue = await AsyncStorage.getItem('catList');
       let cattData =
         cattValue != null || cattValue != undefined
           ? JSON.parse(cattValue)
           : null;
-      setCategories(cattData)
-
+      setCategories(cattData);
     } catch (e: any) {
       // error reading value
       ToastAndroid.showWithGravity(
@@ -294,8 +309,6 @@ const App: React.FC = () => {
           Alert.alert(`Moye Moye`, `${e.toString()}`);
         });
     } else {
-
-
       setCategories(Data.categories);
       const jsonCat = JSON.stringify(Data.categories);
       await AsyncStorage.setItem('catList', jsonCat);
@@ -328,7 +341,6 @@ const App: React.FC = () => {
       });
       setListData(tempData);
     }
-
   };
 
   const storeData = async (value: ItemData[]) => {
@@ -383,35 +395,37 @@ const App: React.FC = () => {
     setSearchTxt(data);
   };
   const UploadList = () => {
-    setUploadState(0)
-    setShowUpload(true)
+    setUploadState(0);
+    setShowUpload(true);
   };
 
   const uploadDBFn = async () => {
     let tempDataList: {
       id: number;
       quantity: number;
-    }[] = []
+    }[] = [];
     dataList?.map((itm: ItemData) => {
       // let tempDataList = dataList?.filter(({ quantity, id }: { quantity: number, id: number }) => {
       if (itm.quantity && itm.quantity > 0) {
-        tempDataList = [...tempDataList, {
-          id: itm.id,
-          quantity: itm.quantity
-        }]
+        tempDataList = [
+          ...tempDataList,
+          {
+            id: itm.id,
+            quantity: itm.quantity,
+          },
+        ];
       }
-    })
+    });
     if (tempDataList?.length > 0) {
-      setUploadState(2)
+      setUploadState(2);
       let formData = {
         mode: 'SAVE_DATA',
-        date: moment(date).format("DD-MM-YYYY"),
-        Items: tempDataList
-      }
-      // console.log(formData)
+        date: moment(date).format('YYYY-MM-DD'),
+        items: tempDataList,
+      };
+      console.log(formData);
       if (IS_API) {
-
-        await fetch("http://192.168.248.69/bgs/api/save_data.php", {
+        await fetch('http://192.168.248.69/bgs/api/save_data.php', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -422,44 +436,41 @@ const App: React.FC = () => {
           .then(res => res.json())
           .then(async (json: any) => {
             if (json?.statusCode === 201) {
-              setListData([])
-              setCategories([])
+              setListData([]);
+              setCategories([]);
               // storeData([])
-              setCategoryID(0)
-              setUploadState(0)
-              setShowUpload(false)
+              setCategoryID(0);
+              setUploadState(0);
+              setShowUpload(false);
               const jValue = JSON.stringify([]);
               await AsyncStorage.setItem('catList', jValue);
-
             } else {
-              setUploadState(0)
-              setShowUpload(false)
+              setUploadState(0);
+              setShowUpload(false);
               Alert.alert(`Error${json?.statusCode}`, `${json.toString()}`);
             }
           })
           .catch(e => {
-            setUploadState(0)
-            setShowUpload(false)
+            setUploadState(0);
+            setShowUpload(false);
             Alert.alert(`Moye Moye`, `${e.toString()}`);
           });
       } else {
-        setListData([])
-        setCategories([])
+        setListData([]);
+        setCategories([]);
         // storeData([])
-        setCategoryID(0)
-        setUploadState(0)
-        setShowUpload(false)
+        setCategoryID(0);
+        setUploadState(0);
+        setShowUpload(false);
         const jValue = JSON.stringify([]);
         await AsyncStorage.setItem('catList', jValue);
       }
     } else {
-      setUploadState(0)
-      setShowUpload(false)
-      Alert.alert(`Moye Moye`, `No Data to send!`);
-
+      setUploadState(0);
+      setShowUpload(false);
+      Alert.alert(`No Data`, `No Data to send!`);
     }
-
-  }
+  };
 
   const setURL = () => {
     // console.log('setURL')
@@ -494,26 +505,22 @@ const App: React.FC = () => {
     return tempcatList;
   }, [categoryID, dataList]);
 
-
-  const switchThemeMode = useCallback(
-    () => {
-      switchTheme({
-        switchThemeFunction: () => setIsDark(pre => !pre),
-        animationConfig: {
-          type: 'circular',
-          duration: 900,
-          startingPoint: {
-            cxRatio: 0.6,
-            cyRatio: 0.1
-          }
+  const switchThemeMode = useCallback(() => {
+    switchTheme({
+      switchThemeFunction: () => setIsDark(pre => !pre),
+      animationConfig: {
+        type: 'circular',
+        duration: 900,
+        startingPoint: {
+          cxRatio: 0.6,
+          cyRatio: 0.1,
         },
-      });
-    },
-    [],
-  )
+      },
+    });
+  }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, {backgroundColor: theme.background}]}>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.background}
@@ -536,7 +543,7 @@ const App: React.FC = () => {
         autoCorrect={false}
         padding={5}
         returnKeyType={'search'}
-        inputStyle={[styles.searchSty, { borderColor: theme.border }]}
+        inputStyle={[styles.searchSty, {borderColor: theme.border}]}
         isDark={isDark}
       />
       <View style={styles.catView}>
@@ -557,9 +564,11 @@ const App: React.FC = () => {
         <>
           {/* {console.log('FlashList')} */}
           <FlashList
-            data={searchTxt ? searchList : categoryID === 0 ? dataList : catList}
+            data={
+              searchTxt ? searchList : categoryID === 0 ? dataList : catList
+            }
             contentContainerStyle={styles.flashList}
-            renderItem={({ item, index }) =>
+            renderItem={({item, index}) => (
               <RenderData
                 key={index}
                 item={item}
@@ -568,7 +577,7 @@ const App: React.FC = () => {
                 RemoveItem={RemoveItem}
                 AddItem={AddItem}
               />
-            }
+            )}
             estimatedItemSize={50}
             keyboardShouldPersistTaps="handled"
             extraData={isDark}
@@ -582,166 +591,203 @@ const App: React.FC = () => {
         visible={showUpload}
         onRequestClose={() => {
           setShowUpload(!showUpload);
-          setUploadState(0)
-        }}
-
-      >
-        <View style={[styles.centeredView,]}>
-          <View style={[styles.modalView, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-
-            {uploadState === 0 && <Animated.View
-              // entering={FadeInLeft} exiting={FadeOutLeft} 
-              style={{
-                gap: height * 0.05,
-              }} >
-              <Animated.Text
-                entering={FadeInLeft
-                  .damping(10)  //10
-                  .mass(1)  //1
-                  .stiffness(80)  //100
-                  .withInitialValues({ transform: [{ translateX: -width * 0.15 }] })
-                  .restDisplacementThreshold(0.01) //0.001
-                  .restSpeedThreshold(2)  //2
-                }
-                exiting={FadeOutLeft
-
-                }
+          setUploadState(0);
+        }}>
+        <View style={[styles.centeredView]}>
+          <View
+            style={[
+              styles.modalView,
+              {backgroundColor: theme.surface, borderColor: theme.border},
+            ]}>
+            {uploadState === 0 && (
+              <Animated.View
+                // entering={FadeInLeft} exiting={FadeOutLeft}
                 style={{
-                  color: theme.text,
-                  fontSize: 18,
-                  textAlign: 'center',
-                  alignSelf: 'center',
-                  marginHorizontal: width * 0.05
+                  gap: height * 0.05,
                 }}>
-                Do you want to upload data to DB?
-              </Animated.Text>
-              <View style={{
-                flexDirection: 'row', alignItems: 'center',
-                justifyContent: 'space-around',
-              }} >
-                <View style={{
-                  borderRadius: 10,
-                  borderColor: theme.border,
-                  borderWidth: 0.5,
-                }} >
-                  <Pressable style={{
-                    width: width * 0.2,
-                    paddingVertical: 15,
+                <Animated.Text
+                  entering={
+                    FadeInLeft.damping(10) //10
+                      .mass(1) //1
+                      .stiffness(80) //100
+                      .withInitialValues({
+                        transform: [{translateX: -width * 0.15}],
+                      })
+                      .restDisplacementThreshold(0.01) //0.001
+                      .restSpeedThreshold(2) //2
+                  }
+                  exiting={FadeOutLeft}
+                  style={{
+                    color: theme.text,
+                    fontSize: 18,
+                    textAlign: 'center',
+                    alignSelf: 'center',
+                    marginHorizontal: width * 0.05,
+                  }}>
+                  Do you want to upload data to DB?
+                </Animated.Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    borderRadius: 10,
-                  }}
-                    android_ripple={{ color: 'grey', borderless: true }}
-                    onPress={() => setShowUpload(!showUpload)}
-                  >
-                    <Text style={{ color: theme.text, fontSize: 16, }} >Close</Text>
-                  </Pressable>
+                    justifyContent: 'space-around',
+                  }}>
+                  <View
+                    style={{
+                      borderRadius: 10,
+                      borderColor: theme.border,
+                      borderWidth: 0.5,
+                    }}>
+                    <Pressable
+                      style={{
+                        width: width * 0.2,
+                        paddingVertical: 15,
+                        alignItems: 'center',
+                        borderRadius: 10,
+                      }}
+                      android_ripple={{color: 'grey', borderless: true}}
+                      onPress={() => setShowUpload(!showUpload)}>
+                      <Text style={{color: theme.text, fontSize: 16}}>
+                        Close
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <View
+                    style={{
+                      borderRadius: 10,
+                      borderColor: theme.border,
+                      borderWidth: 0.5,
+                    }}>
+                    <Pressable
+                      style={{
+                        width: width * 0.2,
+                        paddingVertical: 15,
+                        alignItems: 'center',
+                        borderRadius: 10,
+                      }}
+                      android_ripple={{color: 'grey', borderless: true}}
+                      onPress={() => setUploadState(1)}>
+                      <Animated.Text style={{color: theme.text, fontSize: 16}}>
+                        Upload
+                      </Animated.Text>
+                    </Pressable>
+                  </View>
                 </View>
-                <View style={{
-                  borderRadius: 10,
-                  borderColor: theme.border,
-                  borderWidth: 0.5,
-                }} >
-                  <Pressable style={{
-                    width: width * 0.2,
-                    paddingVertical: 15,
-                    alignItems: 'center',
-                    borderRadius: 10,
-                  }}
-                    android_ripple={{ color: 'grey', borderless: true }}
-                    onPress={() => setUploadState(1)} >
-                    <Animated.Text style={{ color: theme.text, fontSize: 16, }} >Upload</Animated.Text>
-                  </Pressable>
-                </View>
-              </View>
-            </Animated.View>}
-            {uploadState === 1 && <Animated.View
-              // entering={SlideInRight}
-              // exiting={SlideOutRight}
-              style={{
-                gap: height * 0.05,
-              }} >
-              <Animated.Text
-                entering={FadeInRight
-                  .damping(10)  //10
-                  .mass(1)  //1
-                  .stiffness(80)  //100
-                  .withInitialValues({ transform: [{ translateX: width * 0.35 }] })
-                  .restDisplacementThreshold(0.01) //0.001
-                  .restSpeedThreshold(2)  //2
-                }
-                exiting={
-                  FadeOutRight
-                }
-                style={{
-                  color: theme.text,
-                  fontSize: 18,
-                  textAlign: 'center',
-                  alignSelf: 'center'
-                }}>Enter Date</Animated.Text>
-              <Animated.View entering={FadeInDown}  >
-                <DatePicker fadeToColor={theme.background} theme={isDark ? 'dark' : 'light'} date={date} onDateChange={setDate} />
               </Animated.View>
-              <View style={{
-                flexDirection: 'row', alignItems: 'center',
-                justifyContent: 'space-around',
-              }} >
-                <View style={{
-                  borderRadius: 10,
-                  borderColor: theme.border,
-                  borderWidth: 0.5,
-                }} >
-                  <Pressable style={{
-                    width: width * 0.2,
-                    paddingVertical: 15,
+            )}
+            {uploadState === 1 && (
+              <Animated.View
+                // entering={SlideInRight}
+                // exiting={SlideOutRight}
+                style={{
+                  gap: height * 0.05,
+                }}>
+                <Animated.Text
+                  entering={
+                    FadeInRight.damping(10) //10
+                      .mass(1) //1
+                      .stiffness(80) //100
+                      .withInitialValues({
+                        transform: [{translateX: width * 0.35}],
+                      })
+                      .restDisplacementThreshold(0.01) //0.001
+                      .restSpeedThreshold(2) //2
+                  }
+                  exiting={FadeOutRight}
+                  style={{
+                    color: theme.text,
+                    fontSize: 18,
+                    textAlign: 'center',
+                    alignSelf: 'center',
+                  }}>
+                  Enter Date
+                </Animated.Text>
+                <Animated.View entering={FadeInDown}>
+                  <DatePicker
+                    mode="date"
+                    fadeToColor={theme.background}
+                    theme={isDark ? 'dark' : 'light'}
+                    date={date}
+                    onDateChange={setDate}
+                  />
+                </Animated.View>
+                <View
+                  style={{
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    borderRadius: 10,
-                  }}
-                    android_ripple={{ color: 'grey', borderless: true }}
-                    onPress={() => setUploadState(0)}
-                  >
-                    <Text style={{ color: theme.text, fontSize: 16, }} >Back</Text>
-                  </Pressable>
+                    justifyContent: 'space-around',
+                  }}>
+                  <View
+                    style={{
+                      borderRadius: 10,
+                      borderColor: theme.border,
+                      borderWidth: 0.5,
+                    }}>
+                    <Pressable
+                      style={{
+                        width: width * 0.2,
+                        paddingVertical: 15,
+                        alignItems: 'center',
+                        borderRadius: 10,
+                      }}
+                      android_ripple={{color: 'grey', borderless: true}}
+                      onPress={() => setUploadState(0)}>
+                      <Text style={{color: theme.text, fontSize: 16}}>
+                        Back
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <View
+                    style={{
+                      borderRadius: 10,
+                      borderColor: theme.border,
+                      borderWidth: 0.5,
+                    }}>
+                    <Pressable
+                      style={{
+                        width: width * 0.2,
+                        paddingVertical: 15,
+                        alignItems: 'center',
+                        borderRadius: 10,
+                      }}
+                      android_ripple={{color: 'grey', borderless: true}}
+                      onPress={() => uploadDBFn()}>
+                      <Text style={{color: theme.text, fontSize: 16}}>
+                        Upload
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
-                <View style={{
-                  borderRadius: 10,
-                  borderColor: theme.border,
-                  borderWidth: 0.5,
-                }} >
-                  <Pressable style={{
-                    width: width * 0.2,
-                    paddingVertical: 15,
-                    alignItems: 'center',
-                    borderRadius: 10,
-                  }}
-                    android_ripple={{ color: 'grey', borderless: true }}
-                    onPress={() => uploadDBFn()}
-                  >
-                    <Text style={{ color: theme.text, fontSize: 16, }} >Upload</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </Animated.View>}
-            {uploadState === 2 && <Animated.View
-              // entering={SlideInRight}
-              // exiting={SlideOutRight}
-              style={{
-                gap: height * 0.05,
-              }} >
-              <ActivityIndicator size={"large"} color={theme.text} />
-              <Text style={{
-                color: theme.text, fontSize: 16,
-                alignSelf: 'center', textAlign: 'center'
-              }} >loading...</Text>
-            </Animated.View>}
+              </Animated.View>
+            )}
+            {uploadState === 2 && (
+              <Animated.View
+                // entering={SlideInRight}
+                // exiting={SlideOutRight}
+                style={{
+                  gap: height * 0.05,
+                }}>
+                <ActivityIndicator size={'large'} color={theme.text} />
+                <Text
+                  style={{
+                    color: theme.text,
+                    fontSize: 16,
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                  }}>
+                  loading...
+                </Text>
+              </Animated.View>
+            )}
           </View>
         </View>
-      </Modal >
-    </View >
+      </Modal>
+    </View>
   );
 };
 
-const Header = memo((
-  {
+const Header = memo(
+  ({
     isDark,
     editIP,
     IPadd,
@@ -750,123 +796,119 @@ const Header = memo((
     switchThemeMode,
     setEditIP,
     UploadList,
-    getList
+    getList,
   }: {
-    isDark: boolean,
-    editIP: boolean,
-    IPadd: string,
-    setIPadd: (value: string) => void,
-    setURL: () => void,
-    switchThemeMode: () => void,
-    setEditIP: (value: boolean) => void,
-    UploadList: () => void,
-    getList: () => void
-  }
-) => {
-  const theme: themeObj = isDark ? darkMode : liteMode;
-  // console.log("Header")
-  return <View style={[styles.header, { borderColor: theme.border }]}>
-    {editIP ? (
-      <>
-        <TextInput
-          style={[
-            styles.IPinput,
-            {
-              borderColor: theme.border,
-              shadowColor: theme.border,
-            },
-          ]}
-          value={IPadd}
-          onChangeText={setIPadd}
-        />
-        <Pressable
-          style={[
-            styles.goButt,
-            { borderColor: theme.border, shadowColor: theme.border },
-          ]}
-          onPress={setURL}>
-          <Text style={styles.goButtTxt}>GO</Text>
-        </Pressable>
-      </>
-    ) : (
-      <>
-        <Text style={[styles.name, { color: theme.text }]}></Text>
-        <Pressable
-          style={styles.topButtons}
-          onPress={switchThemeMode}>
-          {isDark ? (
-            <SunSVG width={25} height={25} />
-          ) : (
-            <MoonSVG width={25} height={25} />
-          )}
-        </Pressable>
-        <Pressable
-          style={styles.topButtons}
-          onPress={() => setEditIP(true)}>
-          <Text style={[styles.IPbuttTxt, { color: theme.text }]}>IP</Text>
-        </Pressable>
-        <Pressable style={styles.topButtons} onPress={UploadList}>
-          <SyncSVG fill={theme.text} width={25} height={25} />
-        </Pressable>
-        <Pressable style={styles.topButtons} onPress={getList}>
-          <DownloadSVG fill={theme.text} width={25} height={25} />
-        </Pressable>
-      </>
-    )}
-  </View>
-})
+    isDark: boolean;
+    editIP: boolean;
+    IPadd: string;
+    setIPadd: (value: string) => void;
+    setURL: () => void;
+    switchThemeMode: () => void;
+    setEditIP: (value: boolean) => void;
+    UploadList: () => void;
+    getList: () => void;
+  }) => {
+    const theme: themeObj = isDark ? darkMode : liteMode;
+    // console.log("Header")
+    return (
+      <View style={[styles.header, {borderColor: theme.border}]}>
+        {editIP ? (
+          <>
+            <TextInput
+              style={[
+                styles.IPinput,
+                {
+                  borderColor: theme.border,
+                  shadowColor: theme.border,
+                },
+              ]}
+              value={IPadd}
+              onChangeText={setIPadd}
+            />
+            <Pressable
+              style={[
+                styles.goButt,
+                {borderColor: theme.border, shadowColor: theme.border},
+              ]}
+              onPress={setURL}>
+              <Text style={styles.goButtTxt}>GO</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={[styles.name, {color: theme.text}]}></Text>
+            <Pressable style={styles.topButtons} onPress={switchThemeMode}>
+              {isDark ? (
+                <SunSVG width={25} height={25} />
+              ) : (
+                <MoonSVG width={25} height={25} />
+              )}
+            </Pressable>
+            <Pressable
+              style={styles.topButtons}
+              onPress={() => setEditIP(true)}>
+              <Text style={[styles.IPbuttTxt, {color: theme.text}]}>IP</Text>
+            </Pressable>
+            <Pressable style={styles.topButtons} onPress={UploadList}>
+              <SyncSVG fill={theme.text} width={25} height={25} />
+            </Pressable>
+            <Pressable style={styles.topButtons} onPress={getList}>
+              <DownloadSVG fill={theme.text} width={25} height={25} />
+            </Pressable>
+          </>
+        )}
+      </View>
+    );
+  },
+);
 
-const Category = memo(function Category(
-  {
-    idx,
-    categoryID,
-    itm,
-    theme,
-    changeCat
-  }:
-    {
-      idx: number,
-      categoryID: number,
-      itm: Category
-      theme: themeObj,
-      changeCat: (data: Category) => void
-    }
-) {
+const Category = memo(function Category({
+  idx,
+  categoryID,
+  itm,
+  theme,
+  changeCat,
+}: {
+  idx: number;
+  categoryID: number;
+  itm: Category;
+  theme: themeObj;
+  changeCat: (data: Category) => void;
+}) {
   // console.log('category', idx)
-  return <Pressable
-    key={idx}
-    style={{
-      backgroundColor:
-        categoryID === itm.id ? theme.selected : theme.surface,
-      borderColor: theme.border,
-      shadowColor: theme.border,
-      ...styles.catBox,
-    }}
-    onPress={() => changeCat(itm)}>
-    <Text
+  return (
+    <Pressable
+      key={idx}
       style={{
-        color: categoryID === itm.id ? theme.background : theme.text,
-      }}>
-      {itm.name}
-    </Text>
-  </Pressable>
-})
+        backgroundColor: categoryID === itm.id ? theme.selected : theme.surface,
+        borderColor: theme.border,
+        shadowColor: theme.border,
+        ...styles.catBox,
+      }}
+      onPress={() => changeCat(itm)}>
+      <Text
+        style={{
+          color: categoryID === itm.id ? theme.background : theme.text,
+        }}>
+        {itm.name}
+      </Text>
+    </Pressable>
+  );
+});
 
-const RenderData = ((
-  {
-    item,
-    index,
-    isDark,
-    RemoveItem,
-    AddItem
-  }: {
-    item: ItemData,
-    index: number,
-    isDark: boolean,
-    RemoveItem: (item: ItemData, idx: number) => void,
-    AddItem: (item: ItemData, idx: number) => void,
-  }
-) => {
+const RenderData = ({
+  item,
+  index,
+  isDark,
+  RemoveItem,
+  AddItem,
+}: {
+  item: ItemData;
+  index: number;
+  isDark: boolean;
+  RemoveItem: (item: ItemData, idx: number) => void;
+  AddItem: (item: ItemData, idx: number) => void;
+}) => {
   // console.log('renderData', index)
   const theme: themeObj = isDark ? darkMode : liteMode;
   return (
@@ -881,16 +923,16 @@ const RenderData = ((
         },
       ]}>
       <View style={styles.numView}>
-        <Text style={[styles.num, { color: theme.text }]}>{index + 1}. </Text>
+        <Text style={[styles.num, {color: theme.text}]}>{index + 1}. </Text>
       </View>
       <View style={styles.txtView}>
-        <Text style={[styles.titTxt, { color: theme.text }]}>{item.name}</Text>
+        <Text style={[styles.titTxt, {color: theme.text}]}>{item.name}</Text>
       </View>
       <Pressable onPress={() => RemoveItem(item, index)}>
         <MinusSVG width={25} height={25} fill={theme.text} />
       </Pressable>
       <View>
-        <Text style={[styles.Quantity, { color: theme.text }]}>
+        <Text style={[styles.Quantity, {color: theme.text}]}>
           {item.quantity}
         </Text>
       </View>
@@ -899,7 +941,7 @@ const RenderData = ((
       </Pressable>
     </View>
   );
-})
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -1008,7 +1050,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
-    backgroundColor: "rgba(0,0,0,0.5)"
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalView: {
     // margin: 20,
@@ -1025,7 +1067,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    borderWidth: 1
+    borderWidth: 1,
   },
 });
 
