@@ -20,7 +20,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import {FlashList} from '@shopify/flash-list';
+import { FlashList } from '@shopify/flash-list';
 import SearchBar from './SearchBar';
 import {
   AddSVG,
@@ -151,7 +151,7 @@ const Data = {
   ],
 };
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 type ItemData = {
   name: string;
   id: number;
@@ -193,7 +193,7 @@ const App: React.FC = () => {
   const [isDark, setIsDark] = useState(colorScheme === 'dark' ? true : false);
   const [editIP, setEditIP] = useState<boolean>(false);
   const [IPadd, setIPadd] = useState<string>(
-    'http://192.168.104.69/bgs/api/get_items.php',
+    'http://192.168.104.69/bgs/api/',
   );
   const [dataList, setListData] = useState<ItemData[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -248,7 +248,7 @@ const App: React.FC = () => {
       ToastAndroid.CENTER,
     );
     if (IS_API) {
-      await fetch(IPadd, {
+      await fetch(`${IPadd}get_items.php`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -423,9 +423,9 @@ const App: React.FC = () => {
         date: moment(date).format('YYYY-MM-DD'),
         items: tempDataList,
       };
-      console.log(formData);
+      
       if (IS_API) {
-        await fetch('http://192.168.248.69/bgs/api/save_data.php', {
+        await fetch(`${IPadd}save_data.php`, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -520,7 +520,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.background}]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={theme.background}
@@ -543,7 +543,7 @@ const App: React.FC = () => {
         autoCorrect={false}
         padding={5}
         returnKeyType={'search'}
-        inputStyle={[styles.searchSty, {borderColor: theme.border}]}
+        inputStyle={[styles.searchSty, { borderColor: theme.border }]}
         isDark={isDark}
       />
       <View style={styles.catView}>
@@ -568,7 +568,7 @@ const App: React.FC = () => {
               searchTxt ? searchList : categoryID === 0 ? dataList : catList
             }
             contentContainerStyle={styles.flashList}
-            renderItem={({item, index}) => (
+            renderItem={({ item, index }) => (
               <RenderData
                 key={index}
                 item={item}
@@ -597,7 +597,7 @@ const App: React.FC = () => {
           <View
             style={[
               styles.modalView,
-              {backgroundColor: theme.surface, borderColor: theme.border},
+              { backgroundColor: theme.surface, borderColor: theme.border },
             ]}>
             {uploadState === 0 && (
               <Animated.View
@@ -611,7 +611,7 @@ const App: React.FC = () => {
                       .mass(1) //1
                       .stiffness(80) //100
                       .withInitialValues({
-                        transform: [{translateX: -width * 0.15}],
+                        transform: [{ translateX: -width * 0.15 }],
                       })
                       .restDisplacementThreshold(0.01) //0.001
                       .restSpeedThreshold(2) //2
@@ -645,9 +645,9 @@ const App: React.FC = () => {
                         alignItems: 'center',
                         borderRadius: 10,
                       }}
-                      android_ripple={{color: 'grey', borderless: true}}
+                      android_ripple={{ color: 'grey', borderless: true }}
                       onPress={() => setShowUpload(!showUpload)}>
-                      <Text style={{color: theme.text, fontSize: 16}}>
+                      <Text style={{ color: theme.text, fontSize: 16 }}>
                         Close
                       </Text>
                     </Pressable>
@@ -665,9 +665,9 @@ const App: React.FC = () => {
                         alignItems: 'center',
                         borderRadius: 10,
                       }}
-                      android_ripple={{color: 'grey', borderless: true}}
+                      android_ripple={{ color: 'grey', borderless: true }}
                       onPress={() => setUploadState(1)}>
-                      <Animated.Text style={{color: theme.text, fontSize: 16}}>
+                      <Animated.Text style={{ color: theme.text, fontSize: 16 }}>
                         Upload
                       </Animated.Text>
                     </Pressable>
@@ -688,7 +688,7 @@ const App: React.FC = () => {
                       .mass(1) //1
                       .stiffness(80) //100
                       .withInitialValues({
-                        transform: [{translateX: width * 0.35}],
+                        transform: [{ translateX: width * 0.35 }],
                       })
                       .restDisplacementThreshold(0.01) //0.001
                       .restSpeedThreshold(2) //2
@@ -730,9 +730,9 @@ const App: React.FC = () => {
                         alignItems: 'center',
                         borderRadius: 10,
                       }}
-                      android_ripple={{color: 'grey', borderless: true}}
+                      android_ripple={{ color: 'grey', borderless: true }}
                       onPress={() => setUploadState(0)}>
-                      <Text style={{color: theme.text, fontSize: 16}}>
+                      <Text style={{ color: theme.text, fontSize: 16 }}>
                         Back
                       </Text>
                     </Pressable>
@@ -750,9 +750,9 @@ const App: React.FC = () => {
                         alignItems: 'center',
                         borderRadius: 10,
                       }}
-                      android_ripple={{color: 'grey', borderless: true}}
+                      android_ripple={{ color: 'grey', borderless: true }}
                       onPress={() => uploadDBFn()}>
-                      <Text style={{color: theme.text, fontSize: 16}}>
+                      <Text style={{ color: theme.text, fontSize: 16 }}>
                         Upload
                       </Text>
                     </Pressable>
@@ -811,7 +811,7 @@ const Header = memo(
     const theme: themeObj = isDark ? darkMode : liteMode;
     // console.log("Header")
     return (
-      <View style={[styles.header, {borderColor: theme.border}]}>
+      <View style={[styles.header, { borderColor: theme.border }]}>
         {editIP ? (
           <>
             <TextInput
@@ -828,7 +828,7 @@ const Header = memo(
             <Pressable
               style={[
                 styles.goButt,
-                {borderColor: theme.border, shadowColor: theme.border},
+                { borderColor: theme.border, shadowColor: theme.border },
               ]}
               onPress={setURL}>
               <Text style={styles.goButtTxt}>GO</Text>
@@ -836,7 +836,7 @@ const Header = memo(
           </>
         ) : (
           <>
-            <Text style={[styles.name, {color: theme.text}]}></Text>
+            <Text style={[styles.name, { color: theme.text }]}></Text>
             <Pressable style={styles.topButtons} onPress={switchThemeMode}>
               {isDark ? (
                 <SunSVG width={25} height={25} />
@@ -847,7 +847,7 @@ const Header = memo(
             <Pressable
               style={styles.topButtons}
               onPress={() => setEditIP(true)}>
-              <Text style={[styles.IPbuttTxt, {color: theme.text}]}>IP</Text>
+              <Text style={[styles.IPbuttTxt, { color: theme.text }]}>IP</Text>
             </Pressable>
             <Pressable style={styles.topButtons} onPress={UploadList}>
               <SyncSVG fill={theme.text} width={25} height={25} />
@@ -923,16 +923,16 @@ const RenderData = ({
         },
       ]}>
       <View style={styles.numView}>
-        <Text style={[styles.num, {color: theme.text}]}>{index + 1}. </Text>
+        <Text style={[styles.num, { color: theme.text }]}>{index + 1}. </Text>
       </View>
       <View style={styles.txtView}>
-        <Text style={[styles.titTxt, {color: theme.text}]}>{item.name}</Text>
+        <Text style={[styles.titTxt, { color: theme.text }]}>{item.name}</Text>
       </View>
       <Pressable onPress={() => RemoveItem(item, index)}>
         <MinusSVG width={25} height={25} fill={theme.text} />
       </Pressable>
       <View>
-        <Text style={[styles.Quantity, {color: theme.text}]}>
+        <Text style={[styles.Quantity, { color: theme.text }]}>
           {item.quantity}
         </Text>
       </View>
